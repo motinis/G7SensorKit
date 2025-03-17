@@ -239,6 +239,9 @@ public class G7CGMManager: CGMManager {
 
     public func scanForNewSensor(scanAfterDelay: Bool = false) {
         logDeviceCommunication("Forgetting existing sensor and starting scan for new sensor.", type: .connection)
+        
+        // we no longer assume that the hearbeat is working correctly
+        self.providesBLEHeartbeat = false
 
         mutateState { state in
             state.sensorID = nil
@@ -290,6 +293,8 @@ extension G7CGMManager: G7SensorDelegate {
         let shouldSwitchToNewSensor = true
 
         if shouldSwitchToNewSensor {
+            self.providesBLEHeartbeat = true // re-enable the BLE Heatbeat
+            
             mutateState { state in
                 state.sensorID = name
                 state.activatedAt = activatedAt
