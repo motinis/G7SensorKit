@@ -131,7 +131,7 @@ class G7BluetoothManager: NSObject {
         super.init()
 
         managerQueue.sync {
-            self.centralManager = CBCentralManager(delegate: self, queue: managerQueue, options: [CBCentralManagerOptionRestoreIdentifierKey: "com.loudnate.CGMBLEKit"])
+            managerQueue_InitCentralManager()
         }
     }
     
@@ -156,7 +156,15 @@ class G7BluetoothManager: NSObject {
             managerQueue_stopScanning()
         }
     }
+    
+    private func managerQueue_InitCentralManager() {
+        dispatchPrecondition(condition: .onQueue(managerQueue))
+        
+        log.debug("Initializing CBCentralManager")
+        self.centralManager = CBCentralManager(delegate: self, queue: managerQueue, options: [CBCentralManagerOptionRestoreIdentifierKey: "com.loudnate.CGMBLEKit"])
+    }
 
+    
     private func managerQueue_stopScanning() {
         if centralManager.isScanning {
             log.debug("Stopping scan")
@@ -178,6 +186,8 @@ class G7BluetoothManager: NSObject {
             if let peripheral = activePeripheral {
                 centralManager.cancelPeripheralConnection(peripheral)
             }
+            
+            managerQueue_InitCentralManager()
         }
     }
     
